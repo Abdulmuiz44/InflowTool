@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Activity, Clock, Globe, TrendingUp, Users, ArrowUpRight, AlertCircle } from 'lucide-react';
+import { Activity, Globe, TrendingUp, Users, ArrowUpRight, AlertCircle } from 'lucide-react';
 
 interface TrafficData {
   globalRank: number;
