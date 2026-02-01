@@ -53,7 +53,7 @@ export default function Home() {
 
       <div className="pt-12 grid grid-cols-1 sm:grid-cols-3 gap-8 text-muted-foreground text-sm">
         <div>
-            <div className="font-semibold text-foreground text-lg mb-1">10M+</div>
+            <div className="font-semibold text-foreground text-lg mb-1">1B+</div>
             Domains Tracked
         </div>
         <div>

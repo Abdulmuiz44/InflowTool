@@ -47,7 +47,8 @@ function DashboardContent() {
         });
 
         if (!response.ok) {
-          throw new Error('Failed to fetch data');
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.details || errorData.error || `Error ${response.status}: Failed to fetch data`);
         }
 
         const result = await response.json();
