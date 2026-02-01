@@ -2,14 +2,23 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Activity, Globe, TrendingUp, Users, ArrowUpRight, AlertCircle } from 'lucide-react';
+import { Activity, Globe, TrendingUp, Users, ArrowUpRight, AlertCircle, Clock, FileText, Map } from 'lucide-react';
 
 interface TrafficData {
   globalRank: number;
   totalVisits: number;
   bounceRate: number;
+  pagesPerVisit: number;
+  avgVisitDuration: number;
   trafficSources: { name: string; percentage: number }[];
+  topCountries: { name: string; percentage: number }[];
   lastUpdated?: string;
+}
+
+function formatDuration(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}m ${s}s`;
 }
 
 function DashboardContent() {
@@ -88,7 +97,7 @@ function DashboardContent() {
 
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-pulse">
-            {[1, 2, 3].map((i) => (
+            {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="h-48 bg-slate-900/50 rounded-2xl border border-white/5"></div>
             ))}
         </div>
@@ -98,9 +107,9 @@ function DashboardContent() {
             <span>{error}</span>
         </div>
       ) : data ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {/* Card 1: Visit Volume */}
-          <div className="bg-slate-900/50 backdrop-blur-sm border border-white/5 p-6 rounded-2xl hover:border-blue-500/30 transition-colors group">
+          <div className="md:col-span-1 bg-slate-900/50 backdrop-blur-sm border border-white/5 p-6 rounded-2xl hover:border-blue-500/30 transition-colors group">
             <div className="flex justify-between items-start mb-4">
                 <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400 group-hover:text-blue-300 transition-colors">
                     <Users className="w-6 h-6" />
@@ -114,57 +123,116 @@ function DashboardContent() {
             <p className="text-3xl font-bold text-white mt-1">
                 {data.totalVisits.toLocaleString()}
             </p>
-            <div className="mt-4 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
-                <div className="h-full bg-blue-500 w-[70%]"></div>
+             <div className="mt-4 text-sm text-slate-500">
+                Monthly Estimate
             </div>
           </div>
 
-          {/* Card 2: Engagement */}
-          <div className="bg-slate-900/50 backdrop-blur-sm border border-white/5 p-6 rounded-2xl hover:border-cyan-500/30 transition-colors group">
+          {/* Card 2: Global Rank */}
+          <div className="md:col-span-1 bg-slate-900/50 backdrop-blur-sm border border-white/5 p-6 rounded-2xl hover:border-amber-500/30 transition-colors group">
+             <div className="flex justify-between items-start mb-4">
+                <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400 group-hover:text-amber-300 transition-colors">
+                    <Globe className="w-6 h-6" />
+                </div>
+            </div>
+            <h3 className="text-slate-400 text-sm font-medium">Global Rank</h3>
+            <p className="text-3xl font-bold text-white mt-1">
+                #{data.globalRank.toLocaleString()}
+            </p>
+             <div className="mt-4 text-sm text-slate-500">
+                Worldwide Position
+            </div>
+          </div>
+
+          {/* Card 3: Engagement Stats (Wider) */}
+          <div className="md:col-span-1 lg:col-span-2 bg-slate-900/50 backdrop-blur-sm border border-white/5 p-6 rounded-2xl hover:border-cyan-500/30 transition-colors group">
             <div className="flex justify-between items-start mb-4">
                 <div className="p-2 bg-cyan-500/10 rounded-lg text-cyan-400 group-hover:text-cyan-300 transition-colors">
                     <Activity className="w-6 h-6" />
                 </div>
+                <div className="text-slate-400 text-sm font-medium">Engagement</div>
             </div>
-            <div className="space-y-4">
+            <div className="grid grid-cols-3 gap-4">
                 <div>
-                    <h3 className="text-slate-400 text-sm font-medium">Bounce Rate</h3>
-                    <p className="text-3xl font-bold text-white mt-1">
+                    <div className="flex items-center text-slate-500 mb-1 text-xs">
+                         <Activity className="w-3 h-3 mr-1" /> Bounce Rate
+                    </div>
+                    <p className="text-xl md:text-2xl font-bold text-white">
                         {(data.bounceRate * 100).toFixed(1)}%
                     </p>
                 </div>
                 <div>
-                    <h3 className="text-slate-400 text-sm font-medium">Global Rank</h3>
-                    <p className="text-xl font-semibold text-white mt-1">
-                        #{data.globalRank.toLocaleString()}
+                     <div className="flex items-center text-slate-500 mb-1 text-xs">
+                         <FileText className="w-3 h-3 mr-1" /> Pages / Visit
+                    </div>
+                    <p className="text-xl md:text-2xl font-bold text-white">
+                        {data.pagesPerVisit.toFixed(1)}
+                    </p>
+                </div>
+                <div>
+                     <div className="flex items-center text-slate-500 mb-1 text-xs">
+                         <Clock className="w-3 h-3 mr-1" /> Avg Duration
+                    </div>
+                    <p className="text-xl md:text-2xl font-bold text-white">
+                        {formatDuration(data.avgVisitDuration)}
                     </p>
                 </div>
             </div>
           </div>
 
-          {/* Card 3: Traffic Sources */}
-          <div className="bg-slate-900/50 backdrop-blur-sm border border-white/5 p-6 rounded-2xl hover:border-purple-500/30 transition-colors md:row-span-1">
+          {/* Card 4: Traffic Sources */}
+          <div className="md:col-span-2 bg-slate-900/50 backdrop-blur-sm border border-white/5 p-6 rounded-2xl hover:border-purple-500/30 transition-colors">
              <div className="flex justify-between items-start mb-4">
                 <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400">
                     <ArrowUpRight className="w-6 h-6" />
                 </div>
             </div>
-            <h3 className="text-slate-400 text-sm font-medium mb-3">Top Traffic Sources</h3>
-            <div className="space-y-3">
+            <h3 className="text-slate-400 text-sm font-medium mb-4">Top Traffic Sources</h3>
+            <div className="space-y-4">
                 {data.trafficSources.map((source, idx) => (
                     <div key={idx} className="flex items-center justify-between text-sm">
-                        <span className="text-slate-300">{source.name}</span>
-                        <div className="flex items-center gap-3 flex-1 ml-4 justify-end">
-                            <div className="w-24 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                        <span className="text-slate-300 w-24 truncate">{source.name}</span>
+                        <div className="flex items-center gap-3 flex-1 ml-4">
+                            <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
                                 <div 
-                                    className="h-full bg-gradient-to-r from-blue-500 to-cyan-400"
+                                    className="h-full bg-gradient-to-r from-purple-500 to-blue-500"
                                     style={{ width: `${source.percentage}%` }}
                                 ></div>
                             </div>
-                            <span className="text-white font-medium w-8 text-right">{source.percentage}%</span>
+                            <span className="text-white font-medium w-12 text-right">{source.percentage.toFixed(1)}%</span>
                         </div>
                     </div>
                 ))}
+            </div>
+          </div>
+
+          {/* Card 5: Top Countries */}
+          <div className="md:col-span-2 bg-slate-900/50 backdrop-blur-sm border border-white/5 p-6 rounded-2xl hover:border-pink-500/30 transition-colors">
+             <div className="flex justify-between items-start mb-4">
+                <div className="p-2 bg-pink-500/10 rounded-lg text-pink-400">
+                    <Map className="w-6 h-6" />
+                </div>
+            </div>
+            <h3 className="text-slate-400 text-sm font-medium mb-4">Top Countries</h3>
+            <div className="space-y-4">
+                {data.topCountries && data.topCountries.length > 0 ? (
+                    data.topCountries.map((country, idx) => (
+                        <div key={idx} className="flex items-center justify-between text-sm">
+                            <span className="text-slate-300 w-32 truncate">{country.name}</span>
+                            <div className="flex items-center gap-3 flex-1 ml-4">
+                                <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                                    <div 
+                                        className="h-full bg-gradient-to-r from-pink-500 to-rose-400"
+                                        style={{ width: `${country.percentage}%` }}
+                                    ></div>
+                                </div>
+                                <span className="text-white font-medium w-12 text-right">{country.percentage.toFixed(1)}%</span>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <div className="text-slate-500 text-center py-4">No country data available</div>
+                )}
             </div>
           </div>
         </div>

@@ -34,8 +34,10 @@
 3. Set up environment variables:
    Create a `.env.local` file in the root directory:
    ```env
-   TRAFFIC_API_KEY=your_api_key
-   TRAFFIC_API_HOST=your_api_host
+   TRAFFIC_API_KEY=your_rapidapi_key
+   # Default host is 'similarweb-api1.p.rapidapi.com'
+   # Get key from: https://rapidapi.com/backend-api-backend-api-default/api/similarweb-api1
+   TRAFFIC_API_HOST=similarweb-api1.p.rapidapi.com
    ```
 
 4. Run the development server:
