@@ -2,7 +2,9 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Activity, Globe, TrendingUp, Users, ArrowUpRight, AlertCircle, Clock, FileText, Map } from 'lucide-react';
+import { Activity, Globe, TrendingUp, Users, ArrowUpRight, AlertCircle, Clock, FileText, Map, FileDown } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 interface TrafficData {
   globalRank: number;
@@ -27,6 +29,7 @@ function DashboardContent() {
   const [data, setData] = useState<TrafficData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     if (!url) {
@@ -64,6 +67,36 @@ function DashboardContent() {
     fetchData();
   }, [url]);
 
+  const handleDownload = async () => {
+    const element = document.getElementById('dashboard-content');
+    if (!element) return;
+
+    setIsExporting(true);
+    try {
+        const canvas = await html2canvas(element, {
+            scale: 2,
+            backgroundColor: getComputedStyle(document.body).getPropertyValue('--background') || '#ffffff',
+            useCORS: true,
+            logging: false,
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'px',
+            format: [canvas.width, canvas.height]
+        });
+
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        pdf.save(`inflow-report-${url?.replace(/[^a-z0-9]/gi, '-') || 'analytics'}.pdf`);
+    } catch (err) {
+        console.error("PDF Export Error:", err);
+        alert("Failed to generate PDF. Please try again.");
+    } finally {
+        setIsExporting(false);
+    }
+  };
+
   if (!url) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
@@ -91,8 +124,24 @@ function DashboardContent() {
           </p>
         </div>
         {data?.lastUpdated && (
-           <div className="text-xs font-mono text-muted-foreground bg-muted/50 px-3 py-1 rounded-full border border-border">
-             Updated: {new Date(data.lastUpdated).toLocaleDateString()}
+           <div className="flex items-center gap-3">
+             <div className="text-xs font-mono text-muted-foreground bg-muted/50 px-3 py-1 rounded-full border border-border">
+               Updated: {new Date(data.lastUpdated).toLocaleDateString()}
+             </div>
+             <button
+                onClick={handleDownload}
+                disabled={isExporting}
+                className="flex items-center gap-2 px-3 py-1.5 bg-background border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-50"
+             >
+                {isExporting ? (
+                    <span className="animate-pulse">Saving...</span>
+                ) : (
+                    <>
+                        <FileDown className="w-4 h-4" />
+                        Export PDF
+                    </>
+                )}
+             </button>
            </div>
         )}
       </div>
@@ -121,7 +170,8 @@ function DashboardContent() {
             )}
         </div>
       ) : data ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div id="dashboard-content" className="bg-background p-4 -m-4 rounded-xl">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {/* Card 1: Visit Volume */}
           <div className="bg-card border border-border p-6 rounded-xl shadow-sm">
             <div className="flex justify-between items-start mb-4">
@@ -250,10 +300,10 @@ function DashboardContent() {
                     <div className="text-muted-foreground text-center py-4">No country data available</div>
                 )}
             </div>
-          </div>
-        </div>
-      ) : null}
-    </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}    </div>
   );
 }
 
