@@ -66,14 +66,21 @@ export async function POST(req: NextRequest) {
     });
 
     if (!response.ok) {
+        const errText = await response.text();
+        console.error(`External API Error (${response.status}):`, errText);
+        
         if (response.status === 429) {
             return NextResponse.json({ error: 'API Limit Reached' }, { status: 429 });
         }
-        // If real API fails (e.g. invalid key), we could optionally fall back to mock, 
-        // but for "Real" mode, we should probably return the error to let the user know.
-        const errText = await response.text();
-        console.error('API Error Response:', errText);
-        return NextResponse.json({ error: `Provider Error: ${response.status}` }, { status: response.status });
+        
+        if (response.status === 403 && errText.includes('not subscribed')) {
+             return NextResponse.json({ 
+                 error: 'API Subscription Required', 
+                 details: 'Please subscribe to the Similarweb Traffic API on RapidAPI (Free tier available).' 
+             }, { status: 403 });
+        }
+
+        return NextResponse.json({ error: `Provider Error: ${response.status}`, details: errText }, { status: response.status });
     }
 
     const data = await response.json();

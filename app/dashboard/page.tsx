@@ -53,6 +53,7 @@ function DashboardContent() {
         const result = await response.json();
         setData(result);
       } catch (err) {
+        console.error("Dashboard Fetch Error:", err);
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
         setLoading(false);
