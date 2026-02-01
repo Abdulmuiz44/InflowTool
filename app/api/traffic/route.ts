@@ -25,31 +25,13 @@ export async function POST(req: NextRequest) {
     const apiKey = process.env.TRAFFIC_API_KEY;
     const apiHost = process.env.TRAFFIC_API_HOST || 'similarweb-api1.p.rapidapi.com';
 
-    // 1. Check for missing keys and return mock data immediately (Dev/Demo mode)
+    // 1. Strict API Key Check - No Mock Data
     if (!apiKey || apiKey === 'your_api_key_here') {
-        console.warn('Missing API keys, returning mock data');
-        await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate latency
-        return NextResponse.json({
-            globalRank: Math.floor(Math.random() * 10000) + 1,
-            totalVisits: Math.floor(Math.random() * 1000000) + 50000,
-            bounceRate: parseFloat((Math.random() * 0.8).toFixed(2)),
-            pagesPerVisit: parseFloat((Math.random() * 5 + 1).toFixed(2)),
-            avgVisitDuration: Math.floor(Math.random() * 500) + 30,
-            trafficSources: [
-                { name: 'Direct', percentage: 40 },
-                { name: 'Search', percentage: 35 },
-                { name: 'Social', percentage: 15 },
-                { name: 'Referrals', percentage: 10 }
-            ],
-            topCountries: [
-                { name: 'United States', percentage: 35 },
-                { name: 'India', percentage: 15 },
-                { name: 'Germany', percentage: 8 },
-                { name: 'United Kingdom', percentage: 6 },
-                { name: 'Others', percentage: 36 }
-            ],
-            lastUpdated: new Date().toISOString()
-        });
+        console.error('Missing API keys in .env.local');
+        return NextResponse.json({ 
+            error: 'Server Configuration Error', 
+            details: 'API Key is missing. Please configure TRAFFIC_API_KEY in .env.local.' 
+        }, { status: 500 });
     }
 
     // 2. Real API implementation

@@ -33,18 +33,18 @@ export default function Home() {
       </div>
 
       <form onSubmit={handleSubmit} className="w-full max-w-md">
-        <div className="relative flex items-center bg-background rounded-xl p-2 border border-border shadow-sm focus-within:ring-2 focus-within:ring-ring transition-all">
-          <Search className="w-5 h-5 text-muted-foreground ml-3" />
+        <div className="relative flex items-center bg-background rounded-xl border border-border shadow-sm focus-within:ring-2 focus-within:ring-ring transition-all">
+          <Search className="w-5 h-5 text-muted-foreground ml-3 absolute left-0 pointer-events-none" />
           <input
             type="text"
             placeholder="example.com"
-            className="flex-1 bg-transparent border-none focus:outline-none text-foreground placeholder:text-muted-foreground px-4 py-2"
+            className="w-full bg-transparent border-none focus:outline-none text-foreground placeholder:text-muted-foreground pl-10 pr-28 py-3 rounded-xl"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
           />
           <button
             type="submit"
-            className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-lg font-medium transition-colors"
+            className="absolute right-1.5 top-1.5 bottom-1.5 bg-primary hover:bg-primary/90 text-primary-foreground px-4 rounded-lg font-medium transition-colors text-sm"
           >
             Analyze
           </button>
