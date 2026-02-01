@@ -104,9 +104,21 @@ function DashboardContent() {
             ))}
         </div>
       ) : error ? (
-        <div className="bg-destructive/10 border border-destructive/20 text-destructive p-6 rounded-xl flex items-center gap-3">
-            <AlertCircle className="w-6 h-6" />
-            <span>{error}</span>
+        <div className="flex flex-col gap-4 bg-destructive/10 border border-destructive/20 text-destructive p-6 rounded-xl">
+            <div className="flex items-center gap-3">
+                <AlertCircle className="w-6 h-6 shrink-0" />
+                <span className="font-medium">{error}</span>
+            </div>
+            {error.toLowerCase().includes('subscribe') && (
+                <a 
+                    href="https://rapidapi.com/backend-api-backend-api-default/api/similarweb-api1/pricing" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="self-start px-4 py-2 bg-destructive text-destructive-foreground rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+                >
+                    Subscribe for Free on RapidAPI &rarr;
+                </a>
+            )}
         </div>
       ) : data ? (
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
